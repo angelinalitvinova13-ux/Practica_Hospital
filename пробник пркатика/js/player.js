@@ -5,11 +5,11 @@ class Player{
         this.x = 600;
         this.y = 400;
 
-        this.width = 512;
-        this.height = 512;
+        this.width = 450;
+        this.height = 450;
 
         this.walkSpeed = 4;
-        this.runSpeed = 10;
+        this.runSpeed = 12;
 
         this.frame = 0;
         this.timer = 0;
@@ -37,7 +37,7 @@ class Player{
 
     }
 
- update() {
+update() {
     let speed = keys["ShiftLeft"] || keys["ShiftRight"] ? this.runSpeed : this.walkSpeed;
     let moving = false;
 
@@ -46,10 +46,14 @@ class Player{
     if (keys["KeyA"]) { this.x -= speed; this.direction = "left"; moving = true; }
     if (keys["KeyD"]) { this.x += speed; this.direction = "right"; moving = true; }
 
+    // Ограничение игрока внутри мира
+    this.x = Math.max(0, Math.min(this.x, currentMap.width - this.width));
+this.y = Math.max(0, Math.min(this.y, currentMap.height - this.height));
+
     if (moving) {
         this.timer++;
         if (this.timer > 6) {
-            this.frame++;
+            this.frame = (this.frame + 1) % 8; // Цикличность кадров
             this.timer = 0;
         }
     } else {
@@ -57,25 +61,24 @@ class Player{
     }
 }
 
-draw(ctx) {
-    // Проверяем новые коды клавиш
+draw(ctx, camera) { // Передаем камеру сюда
     const isRunning = keys["ShiftLeft"] || keys["ShiftRight"];
     const frames = isRunning ? this.runFrames : this.walkFrames;
-    
-    // Безопасная проверка: если картинки еще не загрузились, не пытаемся их рисовать
-    const img = frames[this.frame % frames.length];
+    const img = frames[this.frame];
     if (!img.complete) return; 
 
     ctx.save();
+    
+    // Вычисляем позицию на экране относительно камеры
+    const screenX = this.x - camera.x;
+    const screenY = this.y - camera.y;
 
     if (this.direction === "left") {
         ctx.scale(-1, 1);
-        ctx.drawImage(img, -this.x - this.width, this.y, this.width, this.height);
+        ctx.drawImage(img, -screenX - this.width, screenY, this.width, this.height);
     } else {
-        ctx.drawImage(img, this.x, this.y, this.width, this.height);
+        ctx.drawImage(img, screenX, screenY, this.width, this.height);
     }
-
     ctx.restore();
 }
-
 }
