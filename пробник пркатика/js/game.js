@@ -10,7 +10,7 @@ canvas.height = window.innerHeight;
 const player = new Player();
 
 // В game.js
-let currentMap = new Map("assets/map/room1.png", 3000, 1080); 
+let currentMap = new Map("assets/map/roomsv.png", 3000, 1080); 
 
 function gameLoop() {
 
